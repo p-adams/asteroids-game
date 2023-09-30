@@ -3,6 +3,7 @@
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
+
   $: posX = 140;
   $: posY = 130;
 
@@ -11,7 +12,7 @@
     y: posY,
     width: 20,
     height: 20,
-    speed: 10,
+    speed: 20,
     draw: () => {
       ctx.beginPath();
       ctx.rect(ship.x, ship.y, ship.width, ship.height);
@@ -21,10 +22,43 @@
     },
   };
 
+  $: bullets = [] as Array<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }>;
+
+  $: weapon = {
+    speed: 5,
+    fire: () => {
+      const bullet = {
+        x: ship.x + ship.width / 2,
+        y: ship.y,
+        width: 2,
+        height: 10,
+      };
+      bullets.push(bullet);
+    },
+    draw: () => {
+      for (const [i, bullet] of bullets.entries()) {
+        bullet.y -= weapon.speed;
+        ctx.beginPath();
+        ctx.rect(bullet.x, bullet.y, bullet.width, bullet.height);
+        ctx.fillStyle = "red";
+        ctx.fill();
+        ctx.closePath();
+        if (bullet.y < 0) {
+          bullets.splice(i, 1);
+        }
+      }
+    },
+  };
+
   function render() {
     ctx.clearRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
     ship.draw();
-
+    weapon.draw();
     requestAnimationFrame(render);
   }
 
@@ -48,7 +82,7 @@
         if (posY < 130) posY += ship.speed;
         break;
       case " ":
-        // TODO: handle shoot functionality
+        weapon.fire();
         break;
       default:
         console.log(`${key} key not supported`);
