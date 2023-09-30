@@ -12,7 +12,7 @@
     y: posY,
     width: 20,
     height: 20,
-    speed: 20,
+    speed: 10,
     draw: () => {
       ctx.beginPath();
       ctx.rect(ship.x, ship.y, ship.width, ship.height);
@@ -70,7 +70,7 @@
     const key = e.key;
     switch (key) {
       case "d":
-        if (posX < 280) posX += ship.speed;
+        if (posX < ctx.canvas.width - ship.width) posX += ship.speed;
         break;
       case "a":
         if (posX > 0) posX -= ship.speed;
@@ -79,7 +79,7 @@
         if (posY > 0) posY -= ship.speed;
         break;
       case "s":
-        if (posY < 130) posY += ship.speed;
+        if (posY < ctx.canvas.height - ship.height) posY += ship.speed;
         break;
       case " ":
         weapon.fire();
