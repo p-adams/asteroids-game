@@ -3,7 +3,8 @@
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
-
+  let hits = 0;
+  let misses = 0;
   $: posX = 140;
   $: posY = 130;
 
@@ -71,11 +72,26 @@
         ctx.fillStyle = "black";
         ctx.fill();
         ctx.closePath();
+        // Check if any bullets hit the asteroid
+        for (const [j, bullet] of bullets.entries()) {
+          if (
+            bullet.x > asteroid.x - asteroid.radius &&
+            bullet.x < asteroid.x + asteroid.radius &&
+            bullet.y > asteroid.y - asteroid.radius &&
+            bullet.y < asteroid.y + asteroid.radius
+          ) {
+            // Remove the asteroid and bullet when hit
+            asteroids.splice(i, 1);
+            bullets.splice(j, 1);
+
+            // Award points
+            hits += 1; // Increase the score by 1 for each hit
+          }
+        }
         if (asteroid.y > ctx.canvas.height) {
-          // TODO: remove if hit
-          // asteroids.splice(i, 1);
           asteroid.x = Math.random() * ctx.canvas.width;
           asteroid.y = -Math.random() * ctx.canvas.height;
+          misses += 1;
         }
       }
     },
@@ -136,6 +152,8 @@
   });
 </script>
 
+<p>Hits: {hits}</p>
+<p>Misses: {misses}</p>
 <canvas
   tabindex="0"
   bind:this={canvas}
