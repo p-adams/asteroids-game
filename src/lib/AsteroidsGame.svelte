@@ -29,6 +29,13 @@
     height: number;
   }>;
 
+  $: asteroids = [] as Array<{
+    x: number;
+    y: number;
+    radius: number;
+    speed: number;
+  }>;
+
   $: weapon = {
     speed: 5,
     fire: () => {
@@ -55,10 +62,41 @@
     },
   };
 
+  $: asteroidField = {
+    draw: () => {
+      for (const [i, asteroid] of asteroids.entries()) {
+        asteroid.y += asteroid.speed;
+        ctx.beginPath();
+        ctx.arc(asteroid.x, asteroid.y, asteroid.radius, 0, Math.PI * 2);
+        ctx.fillStyle = "black";
+        ctx.fill();
+        ctx.closePath();
+        if (asteroid.y > ctx.canvas.height) {
+          // TODO: remove if hit
+          // asteroids.splice(i, 1);
+          asteroid.x = Math.random() * ctx.canvas.width;
+          asteroid.y = -Math.random() * ctx.canvas.height;
+        }
+      }
+    },
+    create: () => {
+      for (let index = 0; index < 5; index++) {
+        const asteroid = {
+          x: Math.random() * ctx.canvas.width,
+          y: 0,
+          radius: Math.random() * 6 + 3,
+          speed: Math.random() * 2 + 1,
+        };
+        asteroids.push(asteroid);
+      }
+    },
+  };
+
   function render() {
     ctx.clearRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
     ship.draw();
     weapon.draw();
+    asteroidField.draw();
     requestAnimationFrame(render);
   }
 
@@ -93,6 +131,7 @@
   onMount(() => {
     ctx = canvas.getContext("2d")!;
     ctx.canvas.focus();
+    asteroidField.create();
     render();
   });
 </script>
