@@ -1,10 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
+  const SCORE = 5;
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
   let hits = 0;
   let misses = 0;
+  let didWin: boolean | null = null;
   $: posX = 140;
   $: posY = 130;
 
@@ -23,14 +25,14 @@
     },
   };
 
-  $: bullets = [] as Array<{
+  let bullets = [] as Array<{
     x: number;
     y: number;
     width: number;
     height: number;
   }>;
 
-  $: asteroids = [] as Array<{
+  let asteroids = [] as Array<{
     x: number;
     y: number;
     radius: number;
@@ -95,8 +97,8 @@
         }
       }
     },
-    create: () => {
-      for (let index = 0; index < 5; index++) {
+    create: (count = 5) => {
+      for (let index = 0; index < count; index++) {
         const asteroid = {
           x: Math.random() * ctx.canvas.width,
           y: 0,
@@ -113,6 +115,14 @@
     ship.draw();
     weapon.draw();
     asteroidField.draw();
+    if (misses === 30) {
+      didWin = false;
+      return;
+    }
+    if (hits === SCORE) {
+      didWin = true;
+      return;
+    }
     requestAnimationFrame(render);
   }
 
@@ -147,13 +157,20 @@
   onMount(() => {
     ctx = canvas.getContext("2d")!;
     ctx.canvas.focus();
-    asteroidField.create();
+    asteroidField.create(SCORE);
     render();
   });
 </script>
 
 <p>Hits: {hits}</p>
 <p>Misses: {misses}</p>
+{#if didWin !== null}
+  {#if didWin}
+    <p>You Win</p>
+  {:else}
+    <p>You Lose</p>
+  {/if}
+{/if}
 <canvas
   tabindex="0"
   bind:this={canvas}
